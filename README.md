@@ -1,8 +1,8 @@
-# Welcome to your Expo app 👋
+# DREX👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é um projeto Expo que utiliza o Supabase como infraestrutura de backend e autenticação.
 
-## Get started
+## Configuração Inicial Produção
 
 1. Install dependencies
 
@@ -10,11 +10,46 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
+2. Configurar o .env na raiz do projeto
+ 
+ ```bash
+   EXPO_PUBLIC_SUPABASE_URL=seu_url
+   EXPO_PUBLIC_SUPABASE_KEY=sua_chave
+   ```
+
 2. Start the app
 
    ```bash
    npx expo start
    ```
+
+   ## Configuração de teste
+   0. Necessário Docker instalado/Executando 
+
+
+   1. instalação do supabase cli
+   
+   ```bash
+      npm install supabase --save-dev
+   ```
+   2. inciar
+   ```bash
+      npx supabase start
+   ```
+   3. Prencher um novo .env com a chave mostrado no terminal
+   ╭──────────────────────────────────────────────────────────────╮
+   │ 🔑 Authentication Keys                                       
+   ├─────────────┬────────────────────────────────────────────────┤
+   │ Publishable │ *********************************              │
+   │ Secret      │ **********************************             │
+   ╰─────────────┴────────────────────────────────────────────────╯
+   ```bash
+      EXPO_PUBLIC_SUPABASE_URL=http:*****
+      EXPO_PUBLIC_SUPABASE_KEY=<Publishable Key >
+   ```
+
+   4. Criar as tabelas necessarias
+
 
 In the output, you'll find options to open the app in a
 
