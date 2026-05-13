@@ -1,10 +1,10 @@
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system/legacy';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as XLSX from 'xlsx';
 
 type TransactionType = 'income' | 'expense' | 'deduction';
@@ -230,6 +230,11 @@ export default function NewTransaction() {
   }
 
   function requestFileAccessConfirmation() {
+    // Na web não precisa pedir confirmação de acesso
+    if (Platform.OS === 'web') {
+      return Promise.resolve(true);
+    }
+
     return new Promise<boolean>((resolve) => {
       Alert.alert(
         'Acesso aos arquivos',
@@ -249,6 +254,8 @@ export default function NewTransaction() {
     });
   }
 
+  // ─── Leitura de arquivos ──────────────────────────────────────────────────────
+
   function workbookToRows(workbook: XLSX.WorkBook) {
     const firstSheetName = workbook.SheetNames[0];
 
@@ -262,6 +269,11 @@ export default function NewTransaction() {
   }
 
   async function readAssetAsText(file: DocumentPicker.DocumentPickerAsset) {
+    if (Platform.OS === 'web') {
+      if (file.file?.text) return file.file.text();
+      return (await fetch(file.uri)).text();
+    }
+
     if (file.file?.text) {
       return file.file.text();
     }
@@ -277,6 +289,11 @@ export default function NewTransaction() {
   }
 
   async function readAssetAsWorkbook(file: DocumentPicker.DocumentPickerAsset) {
+    if (Platform.OS === 'web') {
+      if (file.file?.arrayBuffer) return XLSX.read(await file.file.arrayBuffer(), { type: 'array' });
+      return XLSX.read(await (await fetch(file.uri)).arrayBuffer(), { type: 'array' });
+    }
+
     if (file.file?.arrayBuffer) {
       return XLSX.read(await file.file.arrayBuffer(), { type: 'array' });
     }
@@ -299,6 +316,24 @@ export default function NewTransaction() {
     return XLSX.read(await response.arrayBuffer(), { type: 'array' });
   }
 
+  async function readAssetAsBase64(file: DocumentPicker.DocumentPickerAsset) {
+    if (file.base64) {
+      return file.base64;
+    }
+
+    if (Platform.OS === 'web') {
+      const buf = await (await fetch(file.uri)).arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      bytes.forEach((b) => (bin += String.fromCharCode(b)));
+      return btoa(bin);
+    }
+
+    return FileSystem.readAsStringAsync(file.uri, {
+      encoding: 'base64',
+    });
+  }
+
   async function getRowsFromPickedFile(file: DocumentPicker.DocumentPickerAsset, isCsv: boolean) {
     if (isCsv) {
       try {
@@ -313,16 +348,6 @@ export default function NewTransaction() {
     }
 
     return workbookToRows(await readAssetAsWorkbook(file));
-  }
-
-  async function readAssetAsBase64(file: DocumentPicker.DocumentPickerAsset) {
-    if (file.base64) {
-      return file.base64;
-    }
-
-    return FileSystem.readAsStringAsync(file.uri, {
-      encoding: 'base64',
-    });
   }
 
   async function getTransactionsFromPdf(file: DocumentPicker.DocumentPickerAsset) {
@@ -367,7 +392,7 @@ export default function NewTransaction() {
         type: fileTypes,
         copyToCacheDirectory: true,
         multiple: false,
-        base64: true,
+        ...(Platform.OS !== 'web' && { base64: true }),
       });
 
       if (result.canceled) {
