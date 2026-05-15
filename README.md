@@ -51,6 +51,11 @@ Este é um projeto Expo que utiliza o Supabase como infraestrutura de backend e 
 4. Criar as tabelas necessarias
 
 
+##Banco de dados 
+![Preview](./assets/images/mysql.jpeg)
+
+![Preview](./assets/images/supabase.png)
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
