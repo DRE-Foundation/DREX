@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/expo-icon.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.louisborgerth.drex"
     },
     "web": {
       "output": "static",
@@ -44,6 +45,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c7475565-a906-40b0-9ac5-a4cbc654a8a8"
+      }
     }
   }
 }
